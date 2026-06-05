@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Student {
+  id          String   @id @default(uuid())
+  rollNo      String   @unique
+  name        String
+  department  String
+  year        Int
+  roomNo      String
+  parentPhone String
+  gender      String   @default("MALE") // MALE or FEMALE
+  
+  logs        GateLog[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GateLog {
+  id          String   @id @default(uuid())
+  studentId   String
+  action      String   // "IN" or "OUT"
+  timestamp   DateTime @default(now())
+  
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}

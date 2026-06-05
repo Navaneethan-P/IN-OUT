@@ -1,0 +1,328 @@
+// =============================================================================
+// HOSTEL MANAGEMENT SYSTEM — Prisma Schema
+// =============================================================================
+// RULE: Enum values here must EXACTLY match shared/src/enums.ts
+// RULE: Never run raw SQL to change schema — always use: npx prisma migrate dev
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+// Must match shared/src/enums.ts exactly
+
+enum StaffRole {
+  WARDEN
+  SECURITY
+  ADMIN
+}
+
+enum RequestType {
+  OUTING
+  LEAVE
+  EMERGENCY
+}
+
+enum RequestStatus {
+  DRAFT
+  PENDING_APPROVALS
+  APPROVED
+  OUT_CONFIRMED
+  RETURNED
+  COMPLETED
+  REJECTED
+  CANCELLED
+  EXPIRED
+  OVERDUE
+}
+
+enum ActorType {
+  STUDENT
+  WARDEN
+  SECURITY
+  SYSTEM
+}
+
+enum ScanMethod {
+  QR
+  RFID
+  MANUAL
+  ROLL_NUMBER
+}
+
+enum NotificationChannel {
+  SMS
+  WHATSAPP
+  IN_APP
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  FAILED
+  DELIVERED
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+  HELD
+}
+
+enum ParentCallMethod {
+  MANUAL
+  IVR
+}
+
+enum ParentResponse {
+  APPROVED
+  REJECTED
+  NO_ANSWER
+  CONNECTED_WARDEN
+}
+
+enum GateEventType {
+  EXIT
+  ENTRY
+}
+
+enum HostelType {
+  MERIT
+  MANAGEMENT
+}
+
+// ─── TABLE 1: users (Staff Authentication) ───────────────────────────────────
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  phone        String?
+  role         StaffRole
+
+  passwordHash String
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Google OAuth Integration
+  googleEmail        String?
+  googleRefreshToken String?
+
+  // Relations
+  approvals           Approval[]
+
+  attendanceLogs      AttendanceLog[]
+  parentVerifications ParentVerification[]
+  settingsUpdates     SystemSettings[]
+
+  @@map("users")
+}
+
+// ─── TABLE 2: students ────────────────────────────────────────────────────────
+model Student {
+  id           String    @id @default(uuid())
+  rollNumber   String    @unique
+  name         String
+  dob          DateTime?
+  phone        String?
+  fatherName   String?
+  fatherPhone  String
+  motherName   String?
+  motherPhone  String?
+  email        String?
+  roomId       String?
+  department   String
+  year         Int       // 1–5, stored as integer
+  section      String?
+  hostelType   HostelType @default(MERIT)
+  passwordHash String
+  qrToken      String    @unique @default(uuid()) // static identity QR on ID card
+  rfidUid      String?   @unique                  // Phase 2: RFID reader
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  room           HostelRoom?    @relation(fields: [roomId], references: [id])
+  leaveRequests  LeaveRequest[]
+  attendanceLogs AttendanceLog[]
+
+  @@map("students")
+}
+
+// ─── TABLE 3: hostel_rooms ────────────────────────────────────────────────────
+model HostelRoom {
+  id         String   @id @default(uuid())
+  roomNumber String   @unique
+  floor      Int?
+  block      String?
+  capacity   Int      @default(3)
+  createdAt  DateTime @default(now())
+
+  students Student[]
+
+  @@map("hostel_rooms")
+}
+
+// ─── TABLE 4: leave_requests (THE CORE TABLE) ─────────────────────────────────
+model LeaveRequest {
+  id                        String        @id @default(uuid())
+  studentId                 String
+  type                      RequestType
+  reason                    String
+  place                     String
+  outDatetime               DateTime
+  expectedReturnDatetime    DateTime
+  actualReturnDatetime      DateTime?     // Set on gate ENTRY scan
+  status                    RequestStatus @default(DRAFT)
+
+  // Kiosk Terminal Fields
+  hasHodLetter              Boolean       @default(false)
+  submittedPhysicalCopy     Boolean       @default(false)
+  isEmergency               Boolean       @default(false)
+
+  // Generated when status transitions to APPROVED
+  ticketCode                String?       @unique
+
+  // Overdue tracking
+  isOverdue                 Boolean       @default(false)
+  overdueNotifiedAt         DateTime?     // Prevents duplicate SMS alerts
+
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+
+  // Relations
+  student             Student              @relation(fields: [studentId], references: [id])
+  eventLogs           RequestEventLog[]
+  approvals           Approval[]
+
+  attendanceLogs      AttendanceLog[]
+  parentVerifications ParentVerification[]
+  notifications       Notification[]
+
+  @@map("leave_requests")
+}
+
+// ─── TABLE 5: request_event_logs (AUDIT TRAIL — NEVER SKIP) ──────────────────
+// Full lifecycle history. Every status change is recorded here atomically.
+model RequestEventLog {
+  id         String    @id @default(uuid())
+  requestId  String
+  fromStatus String?   // null for the very first event
+  toStatus   String
+  actorType  ActorType
+  actorId    String?   // null for system-generated events
+  note       String?   // Rejection reason, warden notes, etc.
+  metadata   Json?     // Scan method, IP, gate location, etc.
+  createdAt  DateTime  @default(now())
+
+  request LeaveRequest @relation(fields: [requestId], references: [id])
+
+  @@index([requestId])
+  @@index([createdAt])
+  @@map("request_event_logs")
+}
+
+// ─── TABLE 6: approvals ───────────────────────────────────────────────────────
+// Queryable approval records — separate from event logs for business queries
+model Approval {
+  id           String           @id @default(uuid())
+  requestId    String
+  approverId   String
+  approverRole StaffRole
+  decision     ApprovalDecision
+  reason       String?
+  decidedAt    DateTime         @default(now())
+
+  request  LeaveRequest @relation(fields: [requestId], references: [id])
+  approver User         @relation(fields: [approverId], references: [id])
+
+  @@map("approvals")
+}
+
+// ─── TABLE 7: parent_verifications ───────────────────────────────────────────
+model ParentVerification {
+  id          String          @id @default(uuid())
+  requestId   String
+  phoneCalled String
+  callMethod  ParentCallMethod
+  response    ParentResponse?
+  calledAt    DateTime        @default(now())
+  respondedAt DateTime?
+  calledById  String?         // Warden who made the manual call
+
+  request  LeaveRequest @relation(fields: [requestId], references: [id])
+  calledBy User?        @relation(fields: [calledById], references: [id])
+
+  @@map("parent_verifications")
+}
+
+// ─── TABLE 8: attendance_logs (Gate Entry/Exit) ───────────────────────────────
+model AttendanceLog {
+  id           String        @id @default(uuid())
+  studentId    String
+  requestId    String?       // null for unlinked/unauthorized scans
+  eventType    GateEventType
+  scanMethod   ScanMethod
+  scannedById  String?       // Gate guard who processed the scan
+  location     String        @default("main_gate")
+  isAuthorized Boolean       // false = attempted unauthorized exit — kept for audit
+  notes        String?
+  scannedAt    DateTime      @default(now())
+
+  student   Student      @relation(fields: [studentId], references: [id])
+  request   LeaveRequest? @relation(fields: [requestId], references: [id])
+  scannedBy User?        @relation(fields: [scannedById], references: [id])
+
+  @@index([studentId])
+  @@index([scannedAt])
+  @@map("attendance_logs")
+}
+
+// ─── TABLE 9: notifications ───────────────────────────────────────────────────
+model Notification {
+  id             String              @id @default(uuid())
+  requestId      String?
+  recipientPhone String
+  recipientType  String              // 'student' | 'parent' | 'warden'
+  channel        NotificationChannel
+  templateKey    String              // e.g. 'leave_approved', 'student_returned'
+  messageBody    String
+  status         NotificationStatus  @default(QUEUED)
+  providerMsgId  String?             // Fast2SMS/Twilio message ID
+  errorMessage   String?
+  queuedAt       DateTime            @default(now())
+  sentAt         DateTime?
+
+  request LeaveRequest? @relation(fields: [requestId], references: [id])
+
+  @@map("notifications")
+}
+
+// ─── TABLE 10: system_settings (Single-row configuration) ────────────────────
+// Always read/write via: WHERE id = 1
+model SystemSettings {
+  id                       Int      @id @default(1)
+  hostelName               String   @default("Hostel Management System")
+  wardenPhone              String?
+  isWorkingDay             Boolean  @default(true)
+  defaultOutingLimitHours  Int      @default(12)
+  overdueCheckIntervalMins Int      @default(15)
+  smsEnabled               Boolean  @default(false)
+  whatsappEnabled          Boolean  @default(false)
+  updatedById              String?
+  updatedAt                DateTime @updatedAt
+
+  updatedBy User? @relation(fields: [updatedById], references: [id])
+
+  @@map("system_settings")
+}
+
+
