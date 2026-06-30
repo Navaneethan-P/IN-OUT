@@ -117,12 +117,12 @@ IN-OUT/
 
 ---
 
-## 🔒 Security Posture
+##  Security Posture
 - **API-Level Guards:** Every API endpoint validates the incoming JWT against Zod schemas. 
 - **Expiring Cryptographic QRs:** Passes generated for students are cryptographically tied to a specific approved leave and expire automatically.
 - **LAN Snooping Prevention:** WebSockets are authenticated using the same JWT layer, closing standard LAN vulnerabilities.
 
-## 👥 The Intelligence Collective: Team Nova
+##  The Intelligence Collective: Team Nova
 - **Navaneethan P** (Team Lead) - Full Stack Architecture, Backend & DB Design
 - **Kaviya A** - Frontend Interface, React & Warden Dashboard
 - **Elakkiya G** - Database Schema, Security & Role Guards
