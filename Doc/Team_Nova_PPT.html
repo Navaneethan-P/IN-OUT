@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Nova | IN-OUT Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --sky:       #0096C7;
+            --sky-deep:  #0077B6;
+            --navy:      #023E8A;
+            --sky-light: #90E0EF;
+            --sky-pale:  #CAF0F8;
+            --text-dark: #0D1B2A;
+            --text-mid:  #1B4F72;
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--sky-deep);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ── SLIDESHOW ── */
+        .slideshow { position: relative; width: 100vw; height: 100vh; }
+
+        .slide {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity .65s cubic-bezier(.4,0,.2,1), transform .65s cubic-bezier(.4,0,.2,1);
+            transform: translateX(60px);
+            padding: 36px 52px; overflow: hidden;
+        }
+        .slide.active  { opacity: 1; pointer-events: all; transform: translateX(0); }
+        .slide.exit-left { opacity: 0; transform: translateX(-60px); }
+
+        /* ── BG IMAGE ── */
+        .slide-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+        }
+        .slide-bg::after { content: ''; position: absolute; inset: 0; }
+
+        /* ── CONTENT ── */
+        .inner { position: relative; z-index: 1; width: 100%; max-width: 1200px; }
+
+        /* ── DOTS NAV (no buttons) ── */
+        .nav-dots {
+            position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; align-items: center; z-index: 999;
+            background: rgba(255,255,255,0.88);
+            border: 1.5px solid rgba(0,119,182,0.30);
+            border-radius: 50px; padding: 10px 22px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 4px 24px rgba(0,119,182,0.15);
+        }
+        .dot {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: rgba(0,119,182,0.22); transition: all .3s; cursor: pointer;
+        }
+        .dot.active { width: 28px; border-radius: 12px; background: var(--sky-deep); }
+
+        /* ── COUNTER ── */
+        .counter {
+            position: fixed; top: 20px; right: 28px; z-index: 999;
+            background: rgba(255,255,255,0.90); backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(0,119,182,0.28); border-radius: 50px;
+            padding: 8px 22px; font-size: 14px; font-weight: 700;
+            color: var(--sky-deep); letter-spacing: 2px;
+        }
+
+        /* ── SHARED LABEL ── */
+        .label {
+            font-size: 12px; font-weight: 700; letter-spacing: 4px;
+            text-transform: uppercase; margin-bottom: 12px;
+        }
+
+        /* ════════════════════════════════
+           SLIDE 1 — TEAM NOVA
+        ════════════════════════════════ */
+        #s1 .slide-bg { background-image: url('slide_bg_abstract_1782794104625.png'); }
+        #s1 .slide-bg::after {
+            background: linear-gradient(135deg,
+                rgba(0,55,130,0.90) 0%,
+                rgba(0,119,182,0.82) 45%,
+                rgba(0,150,199,0.70) 100%);
+        }
+
+        /* NOVA WORDMARK */
+        .nova-wrap { display: flex; align-items: center; gap: 22px; margin-bottom: 36px; }
+        .nova-mark svg { width: 68px; height: 68px; }
+        .nova-wordmark { line-height: 1; }
+        .nova-big {
+            font-family: 'Playfair Display', serif;
+            font-size: 78px; font-weight: 900; color: white;
+            letter-spacing: -2px; display: block; line-height: 0.88;
+        }
+        .nova-sub {
+            display: block; margin-top: 10px;
+            font-size: 13px; font-weight: 600; letter-spacing: 6px;
+            text-transform: uppercase; color: rgba(202,240,248,0.80);
+        }
+
+        .s1-divider { width: 68px; height: 2px; background: rgba(255,255,255,0.40); margin-bottom: 28px; }
+
+        .presenting {
+            font-size: 13px; font-weight: 600; letter-spacing: 4px;
+            text-transform: uppercase; color: rgba(202,240,248,0.65); margin-bottom: 26px;
+        }
+
+        /* 4 EQUAL MEMBER CARDS — identical for all */
+        .members-row {
+            display: grid; grid-template-columns: repeat(4,1fr);
+            gap: 18px; width: 100%;
+        }
+
+        .mcard {
+            background: rgba(255,255,255,0.90);
+            border: 1.5px solid rgba(255,255,255,0.95);
+            border-radius: 18px; padding: 30px 18px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: transform .25s, box-shadow .25s;
+        }
+        .mcard:hover { transform: translateY(-6px); box-shadow: 0 18px 48px rgba(0,55,130,0.22); }
+
+        /* Name and role — identical across all cards */
+        .m-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px; font-weight: 700;
+            color: var(--text-dark); margin-bottom: 8px; line-height: 1.25;
+        }
+        .m-role {
+            font-size: 13px; font-weight: 500;
+            color: var(--text-mid); line-height: 1.65;
+        }
+
+        /* Team Lead badge — plain pill, same card background */
+        .lead-badge {
+            display: inline-block; margin-top: 14px;
+            background: var(--sky-deep); color: white;
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            padding: 4px 16px; border-radius: 50px; text-transform: uppercase;
+        }
+
+        .college-line {
+            margin-top: 28px;
+            font-size: 12px; font-weight: 500; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(202,240,248,0.58);
+        }
+
+
+        /* ════════════════════════════════
+           SLIDE 2 — TITLE & ABSTRACT
+        ════════════════════════════════ */
+        #s2 .slide-bg { background-image: url('slide_bg_gate_1782794126055.png'); }
+        #s2 .slide-bg::after {
+            background: linear-gradient(115deg,
+                rgba(255,255,255,0.96) 0%,
+                rgba(202,240,248,0.90) 50%,
+                rgba(0,119,182,0.30) 100%);
+        }
+
+        .s2-grid { display: grid; grid-template-columns: 55fr 45fr; gap: 44px; align-items: center; }
+
+        .s2-pill {
+            display: inline-block; background: var(--sky-deep); color: white;
+            font-size: 12px; font-weight: 700; letter-spacing: 2.5px;
+            text-transform: uppercase; padding: 8px 22px; border-radius: 50px;
+            margin-bottom: 20px;
+        }
+
+        .proj-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(38px,4.2vw,58px); font-weight: 900;
+            color: var(--navy); line-height: 1.10; margin-bottom: 16px;
+        }
+        .proj-headline em { font-style: italic; color: var(--sky); }
+
+        .proj-tagline {
+            font-size: 17px; font-weight: 500;
+            color: var(--text-mid); line-height: 1.70; margin-bottom: 26px;
+        }
+
+        .tech-lbl {
+            font-size: 12px; font-weight: 700; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--sky-deep); margin-bottom: 11px;
+        }
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 9px; }
+        .ttag {
+            background: white; border: 1.5px solid rgba(0,119,182,0.25);
+            color: var(--sky-deep); padding: 7px 16px;
+            border-radius: 50px; font-size: 13px; font-weight: 700;
+        }
+
+        .abs-card { background: var(--sky-deep); border-radius: 20px; padding: 34px 30px; }
+        .abs-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 800;
+            color: var(--sky-pale); margin-bottom: 14px;
+        }
+        .abs-card p { font-size: 15px; line-height: 1.78; color: rgba(255,255,255,0.91); }
+
+        .abs-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 22px; }
+        .astat { background: rgba(255,255,255,0.12); border-radius: 12px; padding: 16px 8px; text-align: center; }
+        .astat-num { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900; color: white; line-height: 1; }
+        .astat-lbl { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.62); margin-top: 5px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+
+        /* ════════════════════════════════
+           SLIDE 3 — DOMAIN
+        ════════════════════════════════ */
+        #s3 .slide-bg { background-image: url('slide_bg_domain_1782794159950.png'); }
+        #s3 .slide-bg::after {
+            background: linear-gradient(150deg,
+                rgba(255,255,255,0.94) 0%,
+                rgba(202,240,248,0.88) 55%,
+                rgba(0,119,182,0.30) 100%);
+        }
+
+        .dom-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(34px,3.8vw,52px); font-weight: 900;
+            color: var(--navy); line-height: 1.10; margin-bottom: 8px;
+        }
+        .dom-headline em { color: var(--sky); font-style: italic; }
+
+        .dom-sub { font-size: 17px; font-weight: 500; color: var(--text-mid); margin-bottom: 26px; max-width: 780px; }
+
+        .dom-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-bottom: 20px; }
+
+        .dom-card {
+            background: rgba(255,255,255,0.90);
+            border: 1.5px solid rgba(0,150,199,0.22);
+            border-top: 4px solid var(--sky);
+            border-radius: 16px; padding: 24px 20px;
+            backdrop-filter: blur(16px);
+        }
+        .dom-card h4 {
+            font-size: 14px; font-weight: 800; color: var(--sky-deep);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;
+        }
+        .dom-card p { font-size: 15px; color: var(--text-dark); line-height: 1.65; font-weight: 500; }
+
+        .why-bar {
+            background: var(--navy); border-radius: 16px;
+            padding: 24px 30px; display: grid; grid-template-columns: repeat(4,1fr); gap: 22px;
+        }
+        .wi { text-align: center; }
+        .wi h5 {
+            font-size: 12px; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--sky-pale); margin-bottom: 7px;
+        }
+        .wi p { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.80); line-height: 1.55; }
+
+
+        /* ════════════════════════════════
+           SLIDE 4 — PROBLEM STATEMENT
+        ════════════════════════════════ */
+        #s4 .slide-bg { background-image: url('slide_bg_problem_1782794170185.png'); }
+        #s4 .slide-bg::after {
+            background: linear-gradient(130deg,
+                rgba(255,255,255,0.93) 0%,
+                rgba(202,240,248,0.85) 45%,
+                rgba(0,119,182,0.30) 100%);
+        }
+
+        .ps-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(30px,3.6vw,48px); font-weight: 900;
+            color: var(--navy); margin-bottom: 6px; line-height: 1.10;
+        }
+        .ps-headline em { color: var(--sky); font-style: italic; }
+
+        .ps-sub { font-size: 16px; font-weight: 500; color: var(--text-mid); margin-bottom: 20px; }
+
+        /* ARCHITECTURE PIPELINE */
+        .arch-pipeline { display: flex; align-items: stretch; margin-bottom: 20px; }
+
+        .arch-node {
+            flex: 1; position: relative;
+            background: rgba(255,255,255,0.92);
+            border: 1.5px solid rgba(0,150,199,0.20);
+            padding: 18px 12px; text-align: center;
+        }
+        .arch-node:first-child { border-radius: 14px 0 0 14px; }
+        .arch-node:last-child  { border-radius: 0 14px 14px 0; }
+
+        /* Arrow connector */
+        .arch-node:not(:last-child)::after {
+            content: ''; position: absolute;
+            right: -14px; top: 50%; transform: translateY(-50%);
+            width: 0; height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 14px solid var(--sky);
+            z-index: 3;
+        }
+
+        .an-step { font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 7px; }
+        .arch-node h4 { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 5px; }
+        .arch-node p  { font-size: 12px; font-weight: 500; color: var(--text-mid); line-height: 1.45; }
+
+        .ps-bottom { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+
+        .ps-before {
+            background: rgba(218,232,242,0.78);
+            border-radius: 14px; padding: 20px 22px;
+            border-left: 4px solid #90A4AE;
+        }
+        .ps-before h4 { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #546E7A; margin-bottom: 12px; }
+        .ps-before ul { list-style: none; }
+        .ps-before ul li { font-size: 14px; font-weight: 600; color: #37474F; padding: 3px 0; line-height: 1.55; padding-left: 16px; position: relative; }
+        .ps-before ul li::before { content: ''; position: absolute; left: 0; top: 11px; width: 8px; height: 2px; background: #90A4AE; }
+
+        .ps-after { background: var(--sky-deep); border-radius: 14px; padding: 20px 24px; }
+        .ps-after h4 { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--sky-pale); margin-bottom: 12px; }
+        .ps-after p  { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.92); line-height: 1.72; }
+
+
+        /* ════════════════════════════════
+           SLIDE 5 — BASELINE PAPERS
+        ════════════════════════════════ */
+        #s5 .slide-bg { background-image: url('slide_bg_research_1782794200418.png'); }
+        #s5 .slide-bg::after {
+            background: linear-gradient(140deg,
+                rgba(255,255,255,0.94) 0%,
+                rgba(202,240,248,0.88) 55%,
+                rgba(0,119,182,0.28) 100%);
+        }
+
+        .bp-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(26px,3.2vw,42px); font-weight: 900;
+            color: var(--navy); margin-bottom: 5px; line-height: 1.10;
+        }
+        .bp-headline em { color: var(--sky); font-style: italic; }
+
+        .bp-sub { font-size: 15px; font-weight: 500; color: var(--text-mid); margin-bottom: 18px; }
+
+        .papers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .paper-card {
+            background: rgba(255,255,255,0.90);
+            border: 1.5px solid rgba(0,150,199,0.20);
+            border-left: 5px solid var(--sky);
+            border-radius: 16px; padding: 18px 20px;
+            backdrop-filter: blur(16px);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .paper-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,119,182,0.16); }
+
+        .paper-num { font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 5px; }
+
+        .paper-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; font-weight: 800;
+            color: var(--navy); margin-bottom: 4px; line-height: 1.35;
+        }
+
+        .paper-author { font-size: 12px; font-weight: 700; color: var(--sky-deep); margin-bottom: 9px; }
+
+        .paper-divider { height: 1px; background: rgba(0,150,199,0.16); margin: 8px 0; }
+
+        .paper-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .pcol h5 { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .pcol.they h5 { color: #607D8B; }
+        .pcol.we   h5 { color: var(--sky-deep); }
+        .pcol p { font-size: 13px; font-weight: 500; line-height: 1.52; color: var(--text-dark); }
+
+        .paper-link {
+            display: inline-block; margin-top: 10px;
+            background: var(--sky-deep); color: white;
+            font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+            padding: 6px 18px; border-radius: 50px; text-decoration: none;
+            text-transform: uppercase; transition: background .2s;
+        }
+        .paper-link:hover { background: var(--navy); }
+
+    </style>
+</head>
+<body>
+
+<div class="counter" id="counter">01 / 05</div>
+
+<div class="slideshow" id="slideshow">
+
+    <!-- ════ SLIDE 1: TEAM NOVA ════ -->
+    <div class="slide active" id="s1">
+        <div class="slide-bg"></div>
+        <div class="inner" style="display:flex;flex-direction:column;align-items:flex-start;">
+
+            <!-- NOVA LOGO WORDMARK -->
+            <div class="nova-wrap">
+                <div class="nova-mark">
+                    <svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon
+                            points="34,2 42,24 66,24 47,39 54,62 34,47 14,62 21,39 2,24 26,24"
+                            fill="rgba(255,255,255,0.10)"
+                            stroke="white" stroke-width="1.8"/>
+                        <polygon
+                            points="34,11 40,28 59,28 45,39 50,56 34,45 18,56 23,39 9,28 28,28"
+                            fill="rgba(202,240,248,0.14)"
+                            stroke="rgba(202,240,248,0.60)" stroke-width="1.2"/>
+                        <circle cx="34" cy="34" r="5.5" fill="white"/>
+                    </svg>
+                </div>
+                <div class="nova-wordmark">
+                    <span class="nova-big">NOVA</span>
+                    <span class="nova-sub">Intelligence Collective</span>
+                </div>
+            </div>
+
+            <div class="s1-divider"></div>
+            <div class="presenting">Presenting the Team Behind the Solution</div>
+
+            <!-- 4 EQUAL MEMBER CARDS -->
+            <div class="members-row">
+
+                <div class="mcard">
+                    <div class="m-name">Navaneethan P</div>
+                    <div class="m-role">Full Stack Architecture<br>Backend and Database Design</div>
+                    <div class="lead-badge">Team Lead</div>
+                </div>
+
+                <div class="mcard">
+                    <div class="m-name">Kaviya A</div>
+                    <div class="m-role">Frontend Interface<br>React and Warden Dashboard</div>
+                </div>
+
+                <div class="mcard">
+                    <div class="m-name">Elakkiya G</div>
+                    <div class="m-role">Database Schema<br>Security and Role Guards</div>
+                </div>
+
+                <div class="mcard">
+                    <div class="m-name">Yogasri R</div>
+                    <div class="m-role">Gate Module and QR Engine<br>SMS Notification Layer</div>
+                </div>
+
+            </div>
+
+            <div class="college-line">Adhi College of Engineering and Technology &nbsp; June 2026</div>
+        </div>
+    </div>
+
+
+    <!-- ════ SLIDE 2: TITLE & ABSTRACT ════ -->
+    <div class="slide" id="s2">
+        <div class="slide-bg"></div>
+        <div class="inner">
+            <div class="s2-grid">
+
+                <div>
+                    <div class="label" style="color:var(--sky-deep);">Project Identity</div>
+                    <div class="s2-pill">Institutional Intelligence Platform</div>
+                    <div class="proj-headline">
+                        <em>IN-OUT</em> — Where Every Exit Becomes Accountability
+                    </div>
+                    <div class="proj-tagline">
+                        A real-time campus intelligence layer that transforms how universities govern student movement — from opaque paperwork to transparent, instantaneous oversight.
+                    </div>
+                    <div class="tech-lbl">Core Technology Layer</div>
+                    <div class="tech-tags">
+                        <span class="ttag">React 18</span>
+                        <span class="ttag">Socket.IO</span>
+                        <span class="ttag">Express.js</span>
+                        <span class="ttag">PostgreSQL</span>
+                        <span class="ttag">Prisma ORM</span>
+                        <span class="ttag">Fast2SMS</span>
+                        <span class="ttag">JWT Auth</span>
+                        <span class="ttag">Docker</span>
+                    </div>
+                </div>
+
+                <div class="abs-card">
+                    <h3>What Is IN-OUT?</h3>
+                    <p>
+                        IN-OUT is a campus-deployed intelligence platform that replaces manual hostel leave registers and paper gate passes with a live, role-driven system. Wardens see requests the moment they are submitted. Gate security verifies cryptographic QR passes on exit. Parents receive an automated message the instant their ward leaves or returns — with zero reliance on the internet.
+                    </p>
+                    <div class="abs-stats">
+                        <div class="astat">
+                            <div class="astat-num">4</div>
+                            <div class="astat-lbl">Role Layers</div>
+                        </div>
+                        <div class="astat">
+                            <div class="astat-num">9</div>
+                            <div class="astat-lbl">Status States</div>
+                        </div>
+                        <div class="astat">
+                            <div class="astat-num">10</div>
+                            <div class="astat-lbl">DB Tables</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ════ SLIDE 3: DOMAIN ════ -->
+    <div class="slide" id="s3">
+        <div class="slide-bg"></div>
+        <div class="inner">
+            <div class="label" style="color:var(--sky-deep);">Real-World Domain</div>
+            <div class="dom-headline">
+                <em>EdTech Administration</em> — The Frontier Nobody Digitised
+            </div>
+            <div class="dom-sub">
+                IN-OUT operates at the intersection of institutional governance, real-time systems engineering, and campus safety infrastructure.
+            </div>
+
+            <div class="dom-grid">
+                <div class="dom-card">
+                    <h4>EdTech Administration</h4>
+                    <p>Automating the governance layer of residential education — wardens, students, and security operating on a single unified platform instead of three separate paper trails.</p>
+                </div>
+                <div class="dom-card">
+                    <h4>Real-Time Systems Engineering</h4>
+                    <p>Event-driven architecture using WebSockets ensures zero-latency decision communication. A warden's approval reaches a student's screen in under a second.</p>
+                </div>
+                <div class="dom-card">
+                    <h4>Campus Safety Infrastructure</h4>
+                    <p>Role-based access, cryptographic QR verification, automated overdue alerts, and immutable audit logs make IN-OUT a safety-critical institutional tool.</p>
+                </div>
+            </div>
+
+            <div class="why-bar">
+                <div class="wi">
+                    <h5>Why Not Cloud?</h5>
+                    <p>Campus intranet delivers 100% uptime with zero monthly cost and full data sovereignty on premises.</p>
+                </div>
+                <div class="wi">
+                    <h5>Why Not an App?</h5>
+                    <p>A progressive web platform works on any device — no installation, no app store delays.</p>
+                </div>
+                <div class="wi">
+                    <h5>Why WebSockets?</h5>
+                    <p>HTTP polling wastes bandwidth. Socket.IO pushes events instantly, keeping the warden dashboard always live.</p>
+                </div>
+                <div class="wi">
+                    <h5>Why TypeScript?</h5>
+                    <p>Shared types between client and server eliminate data mismatch bugs before deployment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ════ SLIDE 4: PROBLEM STATEMENT ════ -->
+    <div class="slide" id="s4">
+        <div class="slide-bg"></div>
+        <div class="inner">
+            <div class="label" style="color:var(--sky-deep);">System Architecture of the Problem</div>
+            <div class="ps-headline">
+                The Broken Chain in <em>Hostel Governance</em>
+            </div>
+            <div class="ps-sub">
+                Every existing hostel process has a structural failure point. Here is where the chain breaks — and where IN-OUT intervenes.
+            </div>
+
+            <div class="arch-pipeline">
+                <div class="arch-node">
+                    <div class="an-step">Stage 01</div>
+                    <h4>Paper Application</h4>
+                    <p>Student writes a form. Warden may not be available for hours.</p>
+                </div>
+                <div class="arch-node">
+                    <div class="an-step">Stage 02</div>
+                    <h4>Manual Approval</h4>
+                    <p>No digital queue. Emergency requests look identical to routine ones.</p>
+                </div>
+                <div class="arch-node">
+                    <div class="an-step">Stage 03</div>
+                    <h4>Paper Gate Pass</h4>
+                    <p>Guards verify nothing. Passes can be forged, copied, or reused.</p>
+                </div>
+                <div class="arch-node">
+                    <div class="an-step">Stage 04</div>
+                    <h4>No Return Signal</h4>
+                    <p>Overdue students go undetected until a manual roll call.</p>
+                </div>
+                <div class="arch-node">
+                    <div class="an-step">Outcome</div>
+                    <h4>Zero Accountability</h4>
+                    <p>No audit trail. No parent alert. No record of what happened or when.</p>
+                </div>
+            </div>
+
+            <div class="ps-bottom">
+                <div class="ps-before">
+                    <h4>Without IN-OUT</h4>
+                    <ul>
+                        <li>Hours to approve a leave request</li>
+                        <li>Paper passes with no verification</li>
+                        <li>Parents uninformed until they call</li>
+                        <li>No automated overdue detection</li>
+                        <li>Disputes with no evidence trail</li>
+                    </ul>
+                </div>
+                <div class="ps-after">
+                    <h4>The IN-OUT Resolution</h4>
+                    <p>
+                        A unified platform where a student submits a request, the warden sees it instantly via WebSocket push, approves it in one action, the gate receives a cryptographic QR verification link, the parent receives an SMS at the moment of exit, and the system autonomously triggers an overdue alert — with every event timestamped and permanently logged.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ════ SLIDE 5: BASELINE PAPERS ════ -->
+    <div class="slide" id="s5">
+        <div class="slide-bg"></div>
+        <div class="inner">
+            <div class="label" style="color:var(--sky-deep);">Literature Survey</div>
+            <div class="bp-headline">
+                Research That <em>Shaped</em> Our Thinking
+            </div>
+            <div class="bp-sub">
+                Four baseline papers — who built it, what they did, and how IN-OUT advances each one.
+            </div>
+
+            <div class="papers-grid">
+
+                <div class="paper-card">
+                    <div class="paper-num">Baseline 01</div>
+                    <h4>Smart Hostel Management System Using IoT and Web Technologies</h4>
+                    <div class="paper-author">R. Karthik, S. Murugan et al. — IJRASET, Vol. 9, April 2021</div>
+                    <div class="paper-divider"></div>
+                    <div class="paper-cols">
+                        <div class="pcol they"><h5>What They Did</h5><p>RFID-based entry logging with a basic web dashboard showing gate scan records.</p></div>
+                        <div class="pcol we"><h5>What We Improved</h5><p>Added warden approval workflow, parent SMS alerts, and a full 9-state request lifecycle absent in their system.</p></div>
+                    </div>
+                    <a class="paper-link" href="https://www.ijraset.com/research-paper/smart-hostel-management-system" target="_blank">View Paper</a>
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-num">Baseline 02</div>
+                    <h4>Real-Time Student Attendance Management System Using QR Code</h4>
+                    <div class="paper-author">P. Sharma, A. Jain — IRJET, Vol. 7, Issue 5, May 2020</div>
+                    <div class="paper-divider"></div>
+                    <div class="paper-cols">
+                        <div class="pcol they"><h5>What They Did</h5><p>Static QR codes assigned to students for classroom attendance scanning.</p></div>
+                        <div class="pcol we"><h5>What We Improved</h5><p>Request-bound QR codes that expire after single use, cryptographically tied to a specific approved leave — making forgery structurally impossible.</p></div>
+                    </div>
+                    <a class="paper-link" href="https://www.irjet.net/archives/V7/i5/IRJET-V7I5790.pdf" target="_blank">View Paper</a>
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-num">Baseline 03</div>
+                    <h4>Role-Based Access Control in Web Applications — A Survey</h4>
+                    <div class="paper-author">E. Bertino, P. Sandhu — IEEE Access, Vol. 8, 2020</div>
+                    <div class="paper-divider"></div>
+                    <div class="paper-cols">
+                        <div class="pcol they"><h5>What They Did</h5><p>A theoretical survey of RBAC patterns and JWT-based permission models for multi-actor systems.</p></div>
+                        <div class="pcol we"><h5>What We Improved</h5><p>Implemented strict API-level role guards for all four roles, enforced by JWT middleware and Zod schema validation, preventing privilege escalation.</p></div>
+                    </div>
+                    <a class="paper-link" href="https://ieeexplore.ieee.org/document/9153949" target="_blank">View Paper</a>
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-num">Baseline 04</div>
+                    <h4>Real-Time Notification System Using WebSockets for Institutional Use</h4>
+                    <div class="paper-author">V. Kumar, R. Patel — IJCSE, Vol. 11, Issue 3, 2023</div>
+                    <div class="paper-divider"></div>
+                    <div class="paper-cols">
+                        <div class="pcol they"><h5>What They Did</h5><p>A generic WebSocket notification layer for campus event broadcasting without authentication.</p></div>
+                        <div class="pcol we"><h5>What We Improved</h5><p>Authenticated every Socket.IO connection with the same JWT used by the REST API, closing the snooping vulnerability on shared campus LAN environments.</p></div>
+                    </div>
+                    <a class="paper-link" href="https://www.ijcse.com/docs/IJCSE23-11-03-049.pdf" target="_blank">View Paper</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div><!-- /slideshow -->
+
+<!-- DOTS ONLY — no Prev/Next buttons -->
+<div class="nav-dots" id="navDots"></div>
+
+<script>
+    let current = 0;
+    const slides  = document.querySelectorAll('.slide');
+    const total   = slides.length;
+    const dotsEl  = document.getElementById('navDots');
+    const counter = document.getElementById('counter');
+
+    // Build dots
+    slides.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(d);
+    });
+
+    function updateCounter() {
+        counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    }
+
+    function goTo(n) {
+        if (n === current || n < 0 || n >= total) return;
+        slides[current].classList.remove('active');
+        dotsEl.children[current].classList.remove('active');
+        current = n;
+        slides[current].classList.add('active');
+        dotsEl.children[current].classList.add('active');
+        updateCounter();
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  next();
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    prev();
+    });
+
+    // Click/tap on LEFT half = prev, RIGHT half = next
+    document.getElementById('slideshow').addEventListener('click', e => {
+        // Ignore clicks on dots nav, links, or paper-link buttons
+        if (e.target.closest('.nav-dots') || e.target.closest('a')) return;
+        const half = window.innerWidth / 2;
+        if (e.clientX < half) prev();
+        else next();
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+    }, { passive: true });
+
+    updateCounter();
+</script>
+</body>
+</html>
